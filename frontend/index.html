@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>House Price Predictor</title>
+  <script>
+    // Apply saved or system theme before first paint to avoid a flash
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <span class="brand">House Price Predictor</span>
+      <button id="themeToggle" class="btn-ghost" type="button" aria-label="Switch theme">
+        <span id="themeLabel">Dark mode</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <section class="intro">
+      <h1>What is your property worth?</h1>
+      <p>Fill in the details below and we will estimate the market price.</p>
+    </section>
+
+    <form id="predictForm" class="card" novalidate>
+      <fieldset>
+        <legend>Location</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="City">City</label>
+            <select id="City" name="City" required>
+              <option value="" disabled selected>Select city</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Pune">Pune</option>
+              <option value="Jaipur">Jaipur</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Chandigarh">Chandigarh</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Ahmedabad">Ahmedabad</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="Locality_Type">Locality type</label>
+            <select id="Locality_Type" name="Locality_Type" required>
+              <option value="" disabled selected>Select locality type</option>
+              <option value="Mid-Range">Mid-Range</option>
+              <option value="Premium">Premium</option>
+              <option value="Affordable">Affordable</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="Distance_to_Metro_km">Distance to metro (km)</label>
+            <input type="number" id="Distance_to_Metro_km" name="Distance_to_Metro_km" min="0" step="0.1" placeholder="e.g. 1.5" required>
+          </div>
+          <div class="field">
+            <label for="Distance_to_City_Center_km">Distance to city center (km)</label>
+            <input type="number" id="Distance_to_City_Center_km" name="Distance_to_City_Center_km" min="0" step="0.1" placeholder="e.g. 8" required>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Property</legend>
+        <div class="grid">
+          <div class="field">
+            <label for="Property_Type">Property type</label>
+            <select id="Property_Type" name="Property_Type" required>
+              <option value="" disabled selected>Select property type</option>
+              <option value="Builder Floor">Builder Floor</option>
+              <option value="Villa">Villa</option>
+              <option value="Apartment">Apartment</option>
+              <option value="Independent House">Independent House</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="Furnishing_Status">Furnishing</label>
+            <select id="Furnishing_Status" name="Furnishing_Status" required>
+              <option value="" disabled selected>Select furnishing</option>
+              <option>Unfurnished</option>
+              <option>Semi-Furnished</option>
+              <option>Furnished</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="BHK">Bedrooms (BHK)</label>
+            <input type="number" id="BHK" name="BHK" min="1" step="1" placeholder="e.g. 3" required>
+          </div>
+          <div class="field">
+            <label for="Bathrooms">Bathrooms</label>
+            <input type="number" id="Bathrooms" name="Bathrooms" min="1" step="1" placeholder="e.g. 2" required>
+          </div>
+          <div class="field">
+            <label for="Super_Area_SqFt">Super area (sq ft)</label>
+            <input type="number" id="Super_Area_SqFt" name="Super_Area_SqFt" min="1" step="1" placeholder="e.g. 1400" required>
+          </div>
+          <div class="field">
+            <label for="Carpet_Area_SqFt">Carpet area (sq ft)</label>
+            <input type="number" id="Carpet_Area_SqFt" name="Carpet_Area_SqFt" min="1" step="1" placeholder="e.g. 1100" required>
+          </div>
+          <div class="field">
+            <label for="Floor_Number">Floor number</label>
+            <input type="number" id="Floor_Number" name="Floor_Number" min="0" step="1" placeholder="0 for ground floor" required>
+          </div>
+          <div class="field">
+            <label for="Total_Floors">Total floors in building</label>
+            <input type="number" id="Total_Floors" name="Total_Floors" min="1" step="1" placeholder="e.g. 12" required>
+          </div>
+          <div class="field">
+            <label for="Age_of_Property">Age of property (years)</label>
+            <input type="number" id="Age_of_Property" name="Age_of_Property" min="0" step="1" placeholder="e.g. 5" required>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Amenities</legend>
+        <div class="switches">
+          <label class="switch"><input type="checkbox" id="Parking" name="Parking"><span>Parking</span></label>
+          <label class="switch"><input type="checkbox" id="Lift_Available" name="Lift_Available"><span>Lift available</span></label>
+          <label class="switch"><input type="checkbox" id="Gated_Community" name="Gated_Community"><span>Gated community</span></label>
+        </div>
+      </fieldset>
+
+      <div id="formError" class="error" role="alert" hidden></div>
+
+      <div class="actions">
+        <button type="submit" id="submitBtn" class="btn-primary">Predict price</button>
+        <button type="reset" id="resetBtn" class="btn-ghost">Clear form</button>
+      </div>
+    </form>
+
+    <section id="result" class="card result" aria-live="polite" hidden>
+      <p class="result-label">Estimated price</p>
+      <p id="resultValue" class="result-value"></p>
+      <p id="resultNote" class="result-note"></p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
